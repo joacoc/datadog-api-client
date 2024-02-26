@@ -1,7 +1,12 @@
 [package]
 name = "datadog-api-client"
-version = "0.1.0"
+version = "0.0.0"
 edition = "2021"
+license = "Apache-2.0"
+keywords = ["datadog", "api", "client"]
+categories = ["api-bindings"]
+repository = "https://github.com/joacoc/datadog-api-client/"
+readme = "README.md"
 
 [dependencies]
 reqwest = { version = "0.11.23",  features = ["json"] }
