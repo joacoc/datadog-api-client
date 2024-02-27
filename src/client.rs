@@ -15,6 +15,8 @@ pub struct Client {
 
 struct Config {
     api_key: String,
+    // TODO: Rename to site
+    // Check if wiremock supports it.
     api_url: Url,
     application_key: String,
 }
@@ -100,6 +102,7 @@ impl Client {
             .expect("Client::new()")
     }
 
+    /// Builds a new request
     pub(crate) fn build_request(
         &self,
         method: Method,
@@ -111,6 +114,7 @@ impl Client {
         Ok(req)
     }
 
+    /// Sends a request and parses the response.
     pub(crate) async fn send_request<T>(&self, request: RequestBuilder) -> Result<T, Error>
     where
         T: DeserializeOwned,

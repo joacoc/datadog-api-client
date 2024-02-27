@@ -3,8 +3,8 @@ use reqwest::Method;
 use crate::client::Client;
 use crate::error::Error;
 use crate::models::api_management::{
-    CreateOpenApiRequest, CreateOpenApiResponse, DeleteOpenApiRequest, DeleteOpenApiResponse,
-    GetOpenApiResponse, UpdateOpenApiRequest, UpdateOpenApiResponse,
+    OpenApiCreateRequest, OpenApiCreateResponse, OpenApiDeleteResponse, OpenApiGetResponse,
+    OpenApiUpdateRequest, OpenApiUpdateResponse,
 };
 
 pub(crate) static BASE_PATH: &str = "api/v2/apicatalog";
@@ -17,21 +17,21 @@ impl Client {
     /// [Datadog documentation](https://docs.datadoghq.com/api/latest/api-management/#create-a-new-api)
     pub async fn create_openapi(
         &self,
-        request: CreateOpenApiRequest,
-    ) -> Result<CreateOpenApiResponse, Error> {
+        request: OpenApiCreateRequest,
+    ) -> Result<OpenApiCreateResponse, Error> {
         let req = self.build_request(Method::POST, &format!("{}/openapi", BASE_PATH))?;
         let req = req.json(&request);
 
-        Ok(self.send_request::<CreateOpenApiResponse>(req).await?)
+        self.send_request::<OpenApiCreateResponse>(req).await
     }
 
     /// Retrieve information about a specific API in [OpenAPI](https://spec.openapis.org/oas/latest.html) format file.
     ///
     /// [Datadog documentation](https://docs.datadoghq.com/api/latest/api-management/#get-an-api)
-    pub async fn get_openapi(&self, id: String) -> Result<GetOpenApiResponse, Error> {
+    pub async fn get_openapi(&self, id: &str) -> Result<OpenApiGetResponse, Error> {
         let req = self.build_request(Method::GET, &format!("{}/api/{}/openapi", BASE_PATH, id))?;
 
-        Ok(self.send_request(req).await?)
+        self.send_request(req).await
     }
 
     /// Update information about a specific API.
@@ -41,29 +41,21 @@ impl Client {
     /// [Datadog documentation](https://docs.datadoghq.com/api/latest/api-management/#update-an-api)
     pub async fn update_openapi(
         &self,
-        request: UpdateOpenApiRequest,
-    ) -> Result<UpdateOpenApiResponse, Error> {
-        let req = self.build_request(
-            Method::PUT,
-            &format!("{}/api/{}/openapi", BASE_PATH, request.data.id),
-        )?;
-        let req = req.json(&request.data);
+        id: &str,
+        request: OpenApiUpdateRequest,
+    ) -> Result<OpenApiUpdateResponse, Error> {
+        let req = self.build_request(Method::PUT, &format!("{}/api/{}/openapi", BASE_PATH, id))?;
+        let req = req.json(&request);
 
-        Ok(self.send_request(req).await?)
+        self.send_request(req).await
     }
 
     /// Delete a specific API by ID.
     ///
     /// [Datadog documentation](https://docs.datadoghq.com/api/latest/api-management/#delete-an-api)
-    pub async fn delete_openapi(
-        &self,
-        request: DeleteOpenApiRequest,
-    ) -> Result<DeleteOpenApiResponse, Error> {
-        let req = self.build_request(
-            Method::DELETE,
-            &format!("{}/api/{}", BASE_PATH, request.data.id),
-        )?;
+    pub async fn delete_openapi(&self, id: &str) -> Result<OpenApiDeleteResponse, Error> {
+        let req = self.build_request(Method::DELETE, &format!("{}/api/{}", BASE_PATH, id))?;
 
-        Ok(self.send_request(req).await?)
+        self.send_request(req).await
     }
 }

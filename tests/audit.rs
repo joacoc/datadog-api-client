@@ -1,8 +1,8 @@
 use datadog_api_client::{
     client::ClientBuilder,
     models::audit::{
-        ListAuditLogsEventsRequest, SearchAuditLogsEventsFilter, SearchAuditLogsEventsOptions,
-        SearchAuditLogsEventsPage, SearchAuditLogsEventsRequest, SearchAuditLogsEventsSort,
+        AuditLogsListRequest, AuditLogsSearchFilter, AuditLogsSearchOptions, AuditLogsSearchPage,
+        AuditLogsSearchRequest, AuditLogsSearchSort,
     },
 };
 use url::Url;
@@ -66,21 +66,21 @@ async fn search_audit_logs() {
         .await;
 
     let audit_logs = client
-        .search_audit_logs(SearchAuditLogsEventsRequest {
-            filter: SearchAuditLogsEventsFilter {
+        .search_audit_logs(AuditLogsSearchRequest {
+            filter: AuditLogsSearchFilter {
                 from: "now-15m".to_string(),
                 query: "*".to_string(),
                 to: "now".to_string(),
             },
-            options: SearchAuditLogsEventsOptions {
-                time_offset: 0,
-                timezone: "GMT".to_string(),
+            options: AuditLogsSearchOptions {
+                time_offset: None,
+                timezone: Some("GMT".to_string()),
             },
-            page: SearchAuditLogsEventsPage {
+            page: AuditLogsSearchPage {
                 cursor: None,
                 limit: 25,
             },
-            sort: SearchAuditLogsEventsSort::Timestamp,
+            sort: AuditLogsSearchSort::Timestamp,
         })
         .await
         .unwrap();
@@ -142,7 +142,7 @@ async fn list_audit_logs() {
 
     let client = client_builder.build().expect("Client");
     client
-        .list_audit_logs(ListAuditLogsEventsRequest {
+        .list_audit_logs(AuditLogsListRequest {
             cursor: None,
             filter_query: None,
             filter_from: None,

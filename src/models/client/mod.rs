@@ -24,6 +24,7 @@ pub struct Link {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+/// A list of warnings (non-fatal errors) encountered. Partial results may return if warnings are present in the response.
 pub struct Warnings {
     /// Unique code for this type of warning.
     code: String,
@@ -34,6 +35,7 @@ pub struct Warnings {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+/// Paging attributes.
 pub struct Page {
     /// The cursor to use to get the next results, if any.
     /// To make the next request, use the same parameters with the addition of page[cursor].
@@ -41,10 +43,13 @@ pub struct Page {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+/// The status of the response. Allowed enum values: done,timeout
 pub enum Status {
     #[serde(rename = "done")]
+    /// Reponse was ok.
     Done,
     #[serde(rename = "timeout")]
+    /// Response timedout.
     Timeout,
 }
 
@@ -65,23 +70,33 @@ pub struct Meta {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+/// A response object matching the request.
 pub struct Response<T> {
+    /// Response data envelope.
     pub data: T,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+/// Paged response object matching the request and pagination information.
 pub struct PagedResponse<T> {
+    /// Array of events matching the request.
     pub data: Vec<T>,
+    /// Links attributes.
     pub links: Option<Link>,
+    /// The metadata associated with a request.
     pub meta: Option<Meta>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+/// A request object.
 pub struct Request<T> {
+    /// Request data envelope.
     pub data: T,
 }
 
 #[derive(Debug, Deserialize)]
+/// An error response object.
 pub struct ErrorResponse {
+    /// A list of errors.
     pub errors: Vec<String>,
 }

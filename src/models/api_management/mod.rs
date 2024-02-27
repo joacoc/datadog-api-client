@@ -1,11 +1,11 @@
 use serde_derive::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use super::client::{EmptyResponse, EmptyStruct, Request, Response};
+use super::client::{EmptyResponse, EmptyStruct, Response};
 
 #[derive(Debug, Serialize, Deserialize)]
 /// Data necessary to create an OpenAPI.
-pub struct CreateOpenApiRequestData {
+pub struct OpenApiCreateRequest {
     /// Binary OpenAPI spec file.
     pub openapi_spec_file: Vec<u8>,
 }
@@ -28,7 +28,7 @@ pub struct CreateOpenApiResponseAttributes {
 
 /// Data envelope for [CreateOpenAPIResponse].
 #[derive(Debug, Serialize, Deserialize)]
-pub struct CreateOpenApiResponseData {
+pub struct OpenApiCreateResponseData {
     /// Attributes for `CreateOpenAPI`.
     pub attributes: CreateOpenApiResponseAttributes,
     /// API identifier.
@@ -36,49 +36,37 @@ pub struct CreateOpenApiResponseData {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-/// Attributes for `UpdateOpenAPI`.
-pub struct UpdateOpenApiResponseAttributes {
+/// Attributes for [OpenApiUpdateResponseData].
+pub struct OpenApiUpdateResponseDataAttributes {
     /// List of endpoints which couldn't be parsed.
     pub failed_endpoints: Vec<FailedEndpoints>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct GetOpenApiParams {
-    /// ID of the API to retrieve.
-    pub id: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct UpdateOpenApiRequestData {
-    /// ID of the API to retrieve.
-    pub id: String,
+/// Request fields to update OpenAPI.
+pub struct OpenApiUpdateRequest {
     /// Binary OpenAPI spec file.
     pub openapi_spec_file: Vec<u8>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-/// Data envelope for UpdateOpenAPIResponse.
-pub struct UpdateOpenApiResponseData {
-    /// Attributes for UpdateOpenAPI.
-    pub attributes: UpdateOpenApiResponseAttributes,
+/// Data envelope for [OpenApiUpdateResponse].
+pub struct OpenApiUpdateResponseData {
+    /// Attributes for [OpenApiUpdateResponseData]
+    pub attributes: OpenApiUpdateResponseDataAttributes,
     /// API identifier.
     pub id: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct DeleteOpenApiRequestData {
-    /// ID of the API to retrieve.
-    pub id: String,
-}
+/// Requests and responses
+/// Create OpenAPI response.
+pub type OpenApiCreateResponse = Response<OpenApiCreateResponseData>;
 
-/// Responses and requests
-pub type CreateOpenApiResponse = Response<CreateOpenApiResponseData>;
-pub type CreateOpenApiRequest = CreateOpenApiRequestData;
+/// Get OpenAPI response.
+pub type OpenApiGetResponse = EmptyStruct;
 
-pub type GetOpenApiResponse = EmptyStruct;
+/// Update OpenAPI response.
+pub type OpenApiUpdateResponse = Response<OpenApiUpdateResponseData>;
 
-pub type UpdateOpenApiRequest = Request<UpdateOpenApiRequestData>;
-pub type UpdateOpenApiResponse = Request<UpdateOpenApiResponseData>;
-
-pub type DeleteOpenApiRequest = Request<DeleteOpenApiRequestData>;
-pub type DeleteOpenApiResponse = EmptyResponse;
+/// Delete OpenAPI response.
+pub type OpenApiDeleteResponse = EmptyResponse;

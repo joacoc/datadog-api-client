@@ -3,10 +3,10 @@ use reqwest::Method;
 use crate::client::Client;
 use crate::error::Error;
 use crate::models::apm_retention_filters::{
-    CreateApmRetentionFilterRequest, CreateApmRetentionFilterResponse,
-    DeleteApmRetentionFilterRequest, GetApmRetentionFilterRequest, GetApmRetentionFilterResponse,
-    ListApmRetentionFiltersResponse, ReOrderApmRetentionFiltersRequest,
-    UpdateApmRetentionFilterRequest, UpdateApmRetentionFilterResponse,
+    ApmRetentionFilterCreateRequest, ApmRetentionFilterCreateResponse,
+    ApmRetentionFilterGetResponse, ApmRetentionFilterReOrderRequest,
+    ApmRetentionFilterUpdateRequest, ApmRetentionFilterUpdateResponse,
+    ApmRetentionFiltersListResponse,
 };
 use crate::models::client::EmptyResponse;
 
@@ -14,84 +14,64 @@ static BASE_PATH: &str = "api/v2/apm/config/retention-filters";
 
 impl Client {
     /// Get the list of APM retention filters.
-    ///
-    /// [Datadog documentation](https://api.datadoghq.com/api/v2/apm/config/retention-filters)
     pub async fn list_apm_retention_filters(
         &self,
-    ) -> Result<ListApmRetentionFiltersResponse, Error> {
+    ) -> Result<ApmRetentionFiltersListResponse, Error> {
         let req = self.build_request(Method::GET, BASE_PATH)?;
-        Ok(self
-            .send_request::<ListApmRetentionFiltersResponse>(req)
-            .await?)
+        self.send_request::<ApmRetentionFiltersListResponse>(req)
+            .await
     }
 
     /// Create a retention filter to index spans in your organization.
-    /// Returns the retention filter definition when the request is successful.
-    ///
-    /// [Datadog documentation](https://docs.datadoghq.com/api/latest/apm-retention-filters/#create-a-retention-filter)
     pub async fn create_apm_retention_filter(
         &self,
-        request: CreateApmRetentionFilterRequest,
-    ) -> Result<CreateApmRetentionFilterResponse, Error> {
+        request: ApmRetentionFilterCreateRequest,
+    ) -> Result<ApmRetentionFilterCreateResponse, Error> {
         let req = self.build_request(Method::POST, BASE_PATH)?;
         let req = req.json(&request);
 
-        Ok(self
-            .send_request::<CreateApmRetentionFilterResponse>(req)
-            .await?)
+        self.send_request::<ApmRetentionFilterCreateResponse>(req)
+            .await
     }
 
     /// Get an APM retention filter.
-    ///
-    /// [Datadog documentation](https://docs.datadoghq.com/api/latest/apm-retention-filters/#get-a-given-apm-retention-filter)
     pub async fn get_apm_retention_filter(
         &self,
-        request: GetApmRetentionFilterRequest,
-    ) -> Result<GetApmRetentionFilterResponse, Error> {
-        let req = self.build_request(Method::GET, &format!("{}/{}", BASE_PATH, request.id))?;
+        id: &str,
+    ) -> Result<ApmRetentionFilterGetResponse, Error> {
+        let req = self.build_request(Method::GET, &format!("{}/{}", BASE_PATH, id))?;
 
-        Ok(self
-            .send_request::<GetApmRetentionFilterResponse>(req)
-            .await?)
+        self.send_request::<ApmRetentionFilterGetResponse>(req)
+            .await
     }
 
     /// Update a retention filter from your organization.
-    ///
-    /// [Datadog documentation](https://docs.datadoghq.com/api/latest/apm-retention-filters/#update-a-retention-filter)
     pub async fn update_apm_retention_filter(
         &self,
-        request: UpdateApmRetentionFilterRequest,
-    ) -> Result<UpdateApmRetentionFilterResponse, Error> {
+        request: ApmRetentionFilterUpdateRequest,
+    ) -> Result<ApmRetentionFilterUpdateResponse, Error> {
         let req = self.build_request(Method::PUT, &format!("{}/{}", BASE_PATH, request.data.id))?;
         let req = req.json(&request.data);
 
-        Ok(self
-            .send_request::<UpdateApmRetentionFilterResponse>(req)
-            .await?)
+        self.send_request::<ApmRetentionFilterUpdateResponse>(req)
+            .await
     }
 
     /// Delete a specific retention filter from your organization.
-    ///
-    /// [Datadog documentation](https://docs.datadoghq.com/api/latest/apm-retention-filters/#delete-a-retention-filter)
-    pub async fn delete_apm_retention_filter(
-        &self,
-        request: DeleteApmRetentionFilterRequest,
-    ) -> Result<EmptyResponse, Error> {
-        let req = self.build_request(Method::DELETE, &format!("{}/{}", BASE_PATH, request.id))?;
+    pub async fn delete_apm_retention_filter(&self, id: &str) -> Result<EmptyResponse, Error> {
+        let req = self.build_request(Method::DELETE, &format!("{}/{}", BASE_PATH, id))?;
 
-        Ok(self.send_request(req).await?)
+        self.send_request::<EmptyResponse>(req).await
     }
 
     /// Re-order the execution order of retention filters.
-    ///
-    /// [Datadog documentation](https://docs.datadoghq.com/api/latest/apm-retention-filters/#re-order-retention-filters)
     pub async fn re_order_retention_filters(
         &self,
-        request: ReOrderApmRetentionFiltersRequest,
+        request: ApmRetentionFilterReOrderRequest,
     ) -> Result<(), Error> {
         let req = self.build_request(Method::PUT, &format!("{}-execution-order", BASE_PATH))?;
         let req = req.json(&request);
 
-        Ok(self.send_request(req).await?)
+        self.send_request::<()>(req).await
     }
 }

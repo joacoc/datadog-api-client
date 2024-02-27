@@ -1,9 +1,6 @@
 use datadog_api_client::{
     client::ClientBuilder,
-    models::api_management::{
-        CreateOpenApiRequest, DeleteOpenApiRequest, DeleteOpenApiRequestData, UpdateOpenApiRequest,
-        UpdateOpenApiRequestData,
-    },
+    models::api_management::{OpenApiCreateRequest, OpenApiUpdateRequest},
 };
 use url::Url;
 use wiremock::{
@@ -41,7 +38,7 @@ async fn create_openapi() {
         .await;
 
     client
-        .create_openapi(CreateOpenApiRequest {
+        .create_openapi(OpenApiCreateRequest {
             openapi_spec_file: vec![],
         })
         .await
@@ -63,7 +60,7 @@ async fn get_api_management() {
         .await;
 
     let client = client_builder.build().expect("Client");
-    client.get_openapi("123".to_string()).await.unwrap();
+    client.get_openapi("123").await.unwrap();
 }
 
 #[tokio::test]
@@ -97,12 +94,12 @@ async fn update_api_management() {
 
     let client = client_builder.build().expect("Client");
     client
-        .update_openapi(UpdateOpenApiRequest {
-            data: UpdateOpenApiRequestData {
-                id: "123".to_string(),
+        .update_openapi(
+            "123",
+            OpenApiUpdateRequest {
                 openapi_spec_file: vec![],
             },
-        })
+        )
         .await
         .unwrap();
 }
@@ -120,12 +117,5 @@ async fn delete_api_management() {
     let client_builder =
         ClientBuilder::new(&"&", &"").set_api_url(Url::parse(&mock_server.uri()).unwrap());
     let client = client_builder.build().expect("Client");
-    client
-        .delete_openapi(DeleteOpenApiRequest {
-            data: DeleteOpenApiRequestData {
-                id: "123".to_string(),
-            },
-        })
-        .await
-        .unwrap();
+    client.delete_openapi("123").await.unwrap();
 }

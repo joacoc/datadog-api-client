@@ -3,8 +3,7 @@ use reqwest::Method;
 use crate::client::Client;
 use crate::error::Error;
 use crate::models::audit::{
-    ListAuditLogsEventsRequest, ListAuditLogsEventsResponse, SearchAuditLogsEventsRequest,
-    SearchAuditLogsEventsResponse,
+    AuditLogsListRequest, AuditLogsListResponse, AuditLogsSearchRequest, AuditLogsSearchResponse,
 };
 
 static BASE_PATH: &str = "api/v2/audit/events";
@@ -17,14 +16,13 @@ impl Client {
     /// [Datadog documentation](https://docs.datadoghq.com/api/latest/audit/#search-audit-logs-events)
     pub async fn search_audit_logs(
         &self,
-        request: SearchAuditLogsEventsRequest,
-    ) -> Result<SearchAuditLogsEventsResponse, Error> {
-        let req = self.build_request(Method::GET, &format!("{}/search", BASE_PATH))?;
+        request: AuditLogsSearchRequest,
+    ) -> Result<AuditLogsSearchResponse, Error> {
+        let req: reqwest::RequestBuilder =
+            self.build_request(Method::GET, &format!("{}/search", BASE_PATH))?;
         let req = req.json(&request);
 
-        Ok(self
-            .send_request::<SearchAuditLogsEventsResponse>(req)
-            .await?)
+        self.send_request::<AuditLogsSearchResponse>(req).await
     }
 
     /// List endpoint returns events that match a Audit Logs search query.
@@ -34,13 +32,11 @@ impl Client {
     /// [Datadog documentation](https://docs.datadoghq.com/api/latest/audit/#get-a-list-of-audit-logs-events)
     pub async fn list_audit_logs(
         &self,
-        request: ListAuditLogsEventsRequest,
-    ) -> Result<ListAuditLogsEventsResponse, Error> {
+        request: AuditLogsListRequest,
+    ) -> Result<AuditLogsListResponse, Error> {
         let query = serde_qs::to_string(&request)?;
         let req = self.build_request(Method::GET, &format!("{}?{}", BASE_PATH, query))?;
 
-        Ok(self
-            .send_request::<ListAuditLogsEventsResponse>(req)
-            .await?)
+        self.send_request::<AuditLogsListResponse>(req).await
     }
 }
