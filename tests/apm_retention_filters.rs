@@ -1,5 +1,5 @@
 use datadog_api_client::{
-    client::ClientBuilder,
+    client::{ClientBuilder, Config},
     models::apm_retention_filters::{
         ApmRetentionFilterCreateRequest, ApmRetentionFilterCreateRequestData,
         ApmRetentionFilterCreateRequestDataAttributes, ApmRetentionFilterCreateRequestDataType,
@@ -8,7 +8,6 @@ use datadog_api_client::{
         Filter, FilterType,
     },
 };
-use url::Url;
 use wiremock::{
     matchers::{method, path},
     Mock, MockServer, ResponseTemplate,
@@ -17,8 +16,12 @@ use wiremock::{
 #[tokio::test]
 async fn list_retention_filters() {
     let mock_server = MockServer::start().await;
-    let client_builder =
-        ClientBuilder::new(&"&", &"").set_api_url(Url::parse(&mock_server.uri()).unwrap());
+    let client_builder = ClientBuilder::new(Config {
+        api_key: None,
+        application_key: None,
+        site: Some(mock_server.uri()),
+    })
+    .set_site(Some(mock_server.uri()));
     let client = client_builder.build().expect("Client");
 
     // List
@@ -58,8 +61,12 @@ async fn list_retention_filters() {
 #[tokio::test]
 async fn create_retention_filter() {
     let mock_server = MockServer::start().await;
-    let client_builder =
-        ClientBuilder::new(&"&", &"").set_api_url(Url::parse(&mock_server.uri()).unwrap());
+    let client_builder = ClientBuilder::new(Config {
+        api_key: None,
+        application_key: None,
+        site: Some(mock_server.uri()),
+    })
+    .set_site(Some(mock_server.uri()));
     let client = client_builder.build().expect("Client");
 
     // Create
@@ -112,8 +119,12 @@ async fn create_retention_filter() {
 #[tokio::test]
 async fn get_retention_filter() {
     let mock_server = MockServer::start().await;
-    let client_builder =
-        ClientBuilder::new(&"&", &"").set_api_url(Url::parse(&mock_server.uri()).unwrap());
+    let client_builder = ClientBuilder::new(Config {
+        api_key: None,
+        application_key: None,
+        site: Some(mock_server.uri()),
+    })
+    .set_site(Some(mock_server.uri()));
     let client = client_builder.build().expect("Client");
 
     let body = r#"
@@ -151,8 +162,12 @@ async fn get_retention_filter() {
 #[tokio::test]
 async fn update_retention_filter() {
     let mock_server = MockServer::start().await;
-    let client_builder =
-        ClientBuilder::new(&"&", &"").set_api_url(Url::parse(&mock_server.uri()).unwrap());
+    let client_builder = ClientBuilder::new(Config {
+        api_key: None,
+        application_key: None,
+        site: Some(mock_server.uri()),
+    })
+    .set_site(Some(mock_server.uri()));
     let client = client_builder.build().expect("Client");
 
     let body = r#"
@@ -207,8 +222,12 @@ async fn update_retention_filter() {
 #[tokio::test]
 async fn delete_retention_filters() {
     let mock_server = MockServer::start().await;
-    let client_builder =
-        ClientBuilder::new(&"&", &"").set_api_url(Url::parse(&mock_server.uri()).unwrap());
+    let client_builder = ClientBuilder::new(Config {
+        api_key: None,
+        application_key: None,
+        site: Some(mock_server.uri()),
+    })
+    .set_site(Some(mock_server.uri()));
     let client = client_builder.build().expect("Client");
 
     let response = ResponseTemplate::new(200);

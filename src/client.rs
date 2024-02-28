@@ -5,7 +5,7 @@ use crate::{
 use reqwest::{header, Method, RequestBuilder, StatusCode, Url};
 use serde::de::DeserializeOwned;
 
-const DATADOG_API_URL: &str = "https://api.datadoghq.com/";
+static BASE_SITE: &str = "datadoghq.com";
 
 /// Datadog's API client, designed to perform asynchronous calls.
 pub struct Client {
@@ -13,12 +13,21 @@ pub struct Client {
     api_url: Url,
 }
 
-struct Config {
-    api_key: String,
-    // TODO: Rename to site
-    // Check if wiremock supports it.
-    api_url: Url,
-    application_key: String,
+/// Datadog's API client config.
+pub struct Config {
+    /// Datadog's API key.
+    ////
+    /// For more information about API keys, [visit this link](https://docs.datadoghq.com/account_management/api-app-keys/#api-keys).
+    pub api_key: Option<String>,
+    /// Datadog's API site.
+    ///
+    /// For more information about sites, [visit this link](https://docs.datadoghq.com/getting_started/site/).
+    /// Default: `datadoghq.com`
+    pub site: Option<String>,
+    /// Datadog's application key.
+    ////
+    /// For more information about application keys, [visit this link](https://docs.datadoghq.com/account_management/api-app-keys/#application-keys).
+    pub application_key: Option<String>,
 }
 
 /// Client builder for the [Client].
@@ -28,32 +37,25 @@ pub struct ClientBuilder {
 
 impl ClientBuilder {
     /// Constructs a new [ClientBuilder].
-    pub fn new(api_key: &str, application_key: &str) -> Self {
-        ClientBuilder {
-            config: Config {
-                api_key: api_key.to_string(),
-                // TODO: Remove unwrap.
-                api_url: Url::parse(DATADOG_API_URL).unwrap(),
-                application_key: application_key.to_string(),
-            },
-        }
+    pub fn new(config: Config) -> Self {
+        ClientBuilder { config }
     }
 
     /// Set's Datadog's API url. Used for internal test.
-    pub fn set_api_url(mut self, url: Url) -> ClientBuilder {
-        self.config.api_url = url;
+    pub fn set_site(mut self, site: Option<String>) -> ClientBuilder {
+        self.config.site = site;
         self
     }
 
     /// Set [Datadog application key](https://docs.datadoghq.com/account_management/api-app-keys/#application-keys)
-    pub fn set_application_key(mut self, application_key: &str) -> ClientBuilder {
-        self.config.application_key = application_key.to_string();
+    pub fn set_application_key(mut self, application_key: Option<String>) -> ClientBuilder {
+        self.config.application_key = application_key;
         self
     }
 
     /// Set [Datadog api key](https://docs.datadoghq.com/account_management/api-app-keys/#api-keys)
-    pub fn set_api_key(mut self, api_key: &str) -> ClientBuilder {
-        self.config.api_key = api_key.to_string();
+    pub fn set_api_key(mut self, api_key: Option<String>) -> ClientBuilder {
+        self.config.api_key = api_key;
         self
     }
 
@@ -68,13 +70,28 @@ impl ClientBuilder {
             "Content-Type",
             header::HeaderValue::from_static("application/json"),
         );
-        let mut application_key_value =
-            header::HeaderValue::from_str(&self.config.application_key).unwrap();
-        application_key_value.set_sensitive(true);
-        headers.insert("DD-APPLICATION-KEY", application_key_value);
-        let mut api_key_value = header::HeaderValue::from_str(&self.config.api_key).unwrap();
-        api_key_value.set_sensitive(true);
-        headers.insert("DD-API-KEY", api_key_value);
+
+        if let Some(application_key) = self.config.application_key {
+            let mut application_key_value =
+                header::HeaderValue::from_str(&application_key).unwrap();
+            application_key_value.set_sensitive(true);
+            headers.insert("DD-APPLICATION-KEY", application_key_value);
+        }
+
+        if let Some(api_key) = self.config.api_key {
+            let mut api_key_value = header::HeaderValue::from_str(&api_key).unwrap();
+            api_key_value.set_sensitive(true);
+            headers.insert("DD-API-KEY", api_key_value);
+        }
+
+        let site = self.config.site.unwrap_or(BASE_SITE.to_string());
+
+        // A small tweak to accept a URL as a site for tests.
+        let api_url = if site.contains("datadog") {
+            Url::parse(&format!("https://api.{}", site))
+        } else {
+            Url::parse(&site)
+        }?;
 
         let client = reqwest::ClientBuilder::new()
             .default_headers(headers)
@@ -82,7 +99,7 @@ impl ClientBuilder {
 
         Ok(Client {
             inner: client,
-            api_url: self.config.api_url,
+            api_url: api_url,
         })
     }
 }
@@ -96,10 +113,8 @@ impl Client {
     ///
     /// Use `Client::builder()` if you wish to handle the failure as an `Error`
     /// instead of panicking.
-    pub fn new(api_key: &str, application_key: &str) -> Self {
-        ClientBuilder::new(api_key, application_key)
-            .build()
-            .expect("Client::new()")
+    pub fn new(config: Config) -> Self {
+        ClientBuilder::new(config).build().expect("Client::new()")
     }
 
     /// Builds a new request

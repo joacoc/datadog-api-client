@@ -1,11 +1,10 @@
 use datadog_api_client::{
-    client::ClientBuilder,
+    client::{ClientBuilder, Config},
     models::audit::{
         AuditLogsListRequest, AuditLogsSearchFilter, AuditLogsSearchOptions, AuditLogsSearchPage,
         AuditLogsSearchRequest, AuditLogsSearchSort,
     },
 };
-use url::Url;
 use wiremock::{
     matchers::{method, path},
     Mock, MockServer, ResponseTemplate,
@@ -14,8 +13,12 @@ use wiremock::{
 #[tokio::test]
 async fn search_audit_logs() {
     let mock_server = MockServer::start().await;
-    let client_builder =
-        ClientBuilder::new(&"&", &"").set_api_url(Url::parse(&mock_server.uri()).unwrap());
+    let client_builder = ClientBuilder::new(Config {
+        api_key: None,
+        application_key: None,
+        site: Some(mock_server.uri()),
+    })
+    .set_site(Some(mock_server.uri()));
     let client = client_builder.build().expect("Client");
     let body = r#"
         {
@@ -92,8 +95,12 @@ async fn search_audit_logs() {
 #[tokio::test]
 async fn list_audit_logs() {
     let mock_server = MockServer::start().await;
-    let client_builder =
-        ClientBuilder::new(&"&", &"").set_api_url(Url::parse(&mock_server.uri()).unwrap());
+    let client_builder = ClientBuilder::new(Config {
+        api_key: None,
+        application_key: None,
+        site: Some(mock_server.uri()),
+    })
+    .set_site(Some(mock_server.uri()));
     let body = r#"
         {
             "data": [{

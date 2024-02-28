@@ -1,8 +1,7 @@
 use datadog_api_client::{
-    client::ClientBuilder,
+    client::{ClientBuilder, Config},
     models::api_management::{OpenApiCreateRequest, OpenApiUpdateRequest},
 };
-use url::Url;
 use wiremock::{
     matchers::{method, path},
     Mock, MockServer, ResponseTemplate,
@@ -11,8 +10,11 @@ use wiremock::{
 #[tokio::test]
 async fn create_openapi() {
     let mock_server = MockServer::start().await;
-    let client_builder =
-        ClientBuilder::new(&"&", &"").set_api_url(Url::parse(&mock_server.uri()).unwrap());
+    let client_builder = ClientBuilder::new(Config {
+        api_key: None,
+        application_key: None,
+        site: Some(mock_server.uri()),
+    });
     let client = client_builder.build().expect("Client");
     let body = r#"
         {
@@ -48,8 +50,12 @@ async fn create_openapi() {
 #[tokio::test]
 async fn get_api_management() {
     let mock_server = MockServer::start().await;
-    let client_builder =
-        ClientBuilder::new(&"&", &"").set_api_url(Url::parse(&mock_server.uri()).unwrap());
+    let client_builder = ClientBuilder::new(Config {
+        api_key: None,
+        application_key: None,
+        site: Some(mock_server.uri()),
+    })
+    .set_site(Some(mock_server.uri()));
     let body = r#"{}"#;
 
     let response = ResponseTemplate::new(201).set_body_raw(body, "application/json");
@@ -66,8 +72,12 @@ async fn get_api_management() {
 #[tokio::test]
 async fn update_api_management() {
     let mock_server = MockServer::start().await;
-    let client_builder =
-        ClientBuilder::new(&"&", &"").set_api_url(Url::parse(&mock_server.uri()).unwrap());
+    let client_builder = ClientBuilder::new(Config {
+        api_key: None,
+        application_key: None,
+        site: Some(mock_server.uri()),
+    })
+    .set_site(Some(mock_server.uri()));
 
     let body = r#"
         {
@@ -114,8 +124,12 @@ async fn delete_api_management() {
         .mount(&mock_server)
         .await;
 
-    let client_builder =
-        ClientBuilder::new(&"&", &"").set_api_url(Url::parse(&mock_server.uri()).unwrap());
+    let client_builder = ClientBuilder::new(Config {
+        api_key: None,
+        application_key: None,
+        site: Some(mock_server.uri()),
+    })
+    .set_site(Some(mock_server.uri()));
     let client = client_builder.build().expect("Client");
     client.delete_openapi("123").await.unwrap();
 }
