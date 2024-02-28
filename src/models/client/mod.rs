@@ -9,7 +9,7 @@ pub struct EmptyStruct {}
 #[derive(Deserialize)]
 pub struct EmptyErrorsResponse {
     /// Empty array of errors.
-    errors: Vec<String>,
+    pub errors: Vec<String>,
 }
 
 /// A helpful struct to parse API responses with no data (204/NO_CONTENT).

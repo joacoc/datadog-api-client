@@ -13,9 +13,8 @@ async fn authenticate_api_key() {
     let client_builder = ClientBuilder::new(Config {
         api_key: None,
         application_key: None,
-        site: Some(mock_server.uri()),
-    })
-    .set_site(Some(mock_server.uri()));
+        site: Some(datadog_api_client::client::Site::Custom(mock_server.uri())),
+    });
     let client = client_builder.build().expect("Client");
     let body = r#"
         {
@@ -41,9 +40,8 @@ async fn authenticate_invalid_api_key() {
     let client_builder = ClientBuilder::new(Config {
         api_key: None,
         application_key: None,
-        site: Some(mock_server.uri()),
-    })
-    .set_site(Some(mock_server.uri()));
+        site: Some(datadog_api_client::client::Site::Custom(mock_server.uri())),
+    });
     let client = client_builder.build().expect("Client");
 
     let body = r#"{"errors":["Forbidden"]}"#;

@@ -1,11 +1,9 @@
 use crate::{
     error::{Error, ErrorVec},
-    models::client::{ErrorResponse, Status},
+    models::client::ErrorResponse,
 };
 use reqwest::{header, Method, RequestBuilder, StatusCode, Url};
 use serde::de::DeserializeOwned;
-
-static BASE_SITE: &str = "datadoghq.com";
 
 /// Datadog's API client, designed to perform asynchronous calls.
 pub struct Client {
@@ -22,12 +20,48 @@ pub struct Config {
     /// Datadog's API site.
     ///
     /// For more information about sites, [visit this link](https://docs.datadoghq.com/getting_started/site/).
-    /// Default: `datadoghq.com`
-    pub site: Option<String>,
+    ///
+    /// Default: [Site::Us1]
+    pub site: Option<Site>,
     /// Datadog's application key.
     ////
     /// For more information about application keys, [visit this link](https://docs.datadoghq.com/account_management/api-app-keys/#application-keys).
     pub application_key: Option<String>,
+}
+
+/// Datadog's sites.
+pub enum Site {
+    /// US1 Location
+    Us1,
+    /// US3 Location
+    Us3,
+    /// US5 Location
+    Us5,
+    /// EU1 Location
+    Eu1,
+    /// US1-FED Location
+    Us1Fed,
+    /// AP1 Location
+    Ap1,
+    /// Custom location used for testing purposes.
+    Custom(String),
+}
+
+impl Site {
+    /// Returns the site API url.
+    ///
+    /// For custom sites will return the internal string.
+    pub fn to_api_url(&self) -> Result<Url, Error> {
+        match self {
+            Site::Us1 => Ok(Url::parse("https://api.datadoghq.com")?),
+            Site::Us3 => Ok(Url::parse("https://api.us3.datadoghq.com")?),
+            Site::Us5 => Ok(Url::parse("https://api.us5.datadoghq.com")?),
+            Site::Eu1 => Ok(Url::parse("https://api.datadoghq.eu")?),
+            Site::Us1Fed => Ok(Url::parse("https://api.ddog-gov.com")?),
+            Site::Ap1 => Ok(Url::parse("https://api.ap1.datadoghq.com")?),
+            Site::Custom(s) => Ok(Url::parse(s)?),
+        }
+    }
 }
 
 /// Client builder for the [Client].
@@ -41,8 +75,8 @@ impl ClientBuilder {
         ClientBuilder { config }
     }
 
-    /// Set's Datadog's API url. Used for internal test.
-    pub fn set_site(mut self, site: Option<String>) -> ClientBuilder {
+    /// Set's Datadog's site.
+    pub fn set_site(mut self, site: Option<Site>) -> ClientBuilder {
         self.config.site = site;
         self
     }
@@ -84,22 +118,14 @@ impl ClientBuilder {
             headers.insert("DD-API-KEY", api_key_value);
         }
 
-        let site = self.config.site.unwrap_or(BASE_SITE.to_string());
-
-        // A small tweak to accept a URL as a site for tests.
-        let api_url = if site.contains("datadog") {
-            Url::parse(&format!("https://api.{}", site))
-        } else {
-            Url::parse(&site)
-        }?;
-
+        let api_url = self.config.site.unwrap_or(Site::Us1).to_api_url()?;
         let client = reqwest::ClientBuilder::new()
             .default_headers(headers)
             .build()?;
 
         Ok(Client {
             inner: client,
-            api_url: api_url,
+            api_url,
         })
     }
 }

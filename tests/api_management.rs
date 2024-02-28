@@ -13,7 +13,7 @@ async fn create_openapi() {
     let client_builder = ClientBuilder::new(Config {
         api_key: None,
         application_key: None,
-        site: Some(mock_server.uri()),
+        site: Some(datadog_api_client::client::Site::Custom(mock_server.uri())),
     });
     let client = client_builder.build().expect("Client");
     let body = r#"
@@ -53,9 +53,8 @@ async fn get_api_management() {
     let client_builder = ClientBuilder::new(Config {
         api_key: None,
         application_key: None,
-        site: Some(mock_server.uri()),
-    })
-    .set_site(Some(mock_server.uri()));
+        site: Some(datadog_api_client::client::Site::Custom(mock_server.uri())),
+    });
     let body = r#"{}"#;
 
     let response = ResponseTemplate::new(201).set_body_raw(body, "application/json");
@@ -75,9 +74,8 @@ async fn update_api_management() {
     let client_builder = ClientBuilder::new(Config {
         api_key: None,
         application_key: None,
-        site: Some(mock_server.uri()),
-    })
-    .set_site(Some(mock_server.uri()));
+        site: Some(datadog_api_client::client::Site::Custom(mock_server.uri())),
+    });
 
     let body = r#"
         {
@@ -127,9 +125,8 @@ async fn delete_api_management() {
     let client_builder = ClientBuilder::new(Config {
         api_key: None,
         application_key: None,
-        site: Some(mock_server.uri()),
-    })
-    .set_site(Some(mock_server.uri()));
+        site: Some(datadog_api_client::client::Site::Custom(mock_server.uri())),
+    });
     let client = client_builder.build().expect("Client");
     client.delete_openapi("123").await.unwrap();
 }

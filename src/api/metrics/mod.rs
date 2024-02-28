@@ -5,7 +5,7 @@ use crate::{
     error::Error,
     models::{
         client::{EmptyErrorsResponse, EmptyResponse},
-        metrics::Series,
+        metrics::{MetricMetadataResponse, MetricsSubmitRequest},
     },
 };
 
@@ -17,7 +17,10 @@ impl Client {
     /// Compressed payloads must have a decompressed size of less than 5 megabytes (5242880 bytes).
     ///
     /// [Datadog documentation](https://docs.datadoghq.com/api/latest/metrics/#submit-metrics)
-    pub async fn submit_metrics(&self, series: Series) -> Result<EmptyResponse, Error> {
+    pub async fn submit_metrics(
+        &self,
+        series: MetricsSubmitRequest,
+    ) -> Result<EmptyResponse, Error> {
         // TODO: Support compression.
         let req: reqwest::RequestBuilder =
             self.build_request(Method::POST, &format!("{}", BASE_PATH))?;
@@ -25,5 +28,18 @@ impl Client {
 
         self.send_request::<EmptyErrorsResponse>(req).await?;
         Ok(EmptyResponse {})
+    }
+
+    /// Get metadata about a specific metric. This endpoint requires the metrics_read [authorization scope](https://docs.datadoghq.com/api/latest/scopes/#metrics).
+    ///
+    /// [Datadog documentation](https://docs.datadoghq.com/api/latest/metrics/#get-metric-metadata)
+    pub async fn get_metric_metadata(
+        &self,
+        metric_name: String,
+    ) -> Result<MetricMetadataResponse, Error> {
+        let req: reqwest::RequestBuilder =
+            self.build_request(Method::GET, &format!("api/v1/metrics/{metric_name}"))?;
+
+        self.send_request::<MetricMetadataResponse>(req).await
     }
 }
