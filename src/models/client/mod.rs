@@ -1,10 +1,18 @@
 use serde::{Deserialize, Deserializer, Serialize};
 
-/// For when the API returns an empty json object `{}`
+/// A helpful struct to parse API responses with an empty json object `{}`
 #[derive(Deserialize)]
 pub struct EmptyStruct {}
 
-/// For when the API returns no data as a response (204/NO_CONTENT).
+/// A helpful struct to parse API responses with an empty error array.
+/// This means that the request was correct and no errors are present.
+#[derive(Deserialize)]
+pub struct EmptyErrorsResponse {
+    /// Empty array of errors.
+    errors: Vec<String>,
+}
+
+/// A helpful struct to parse API responses with no data (204/NO_CONTENT).
 pub struct EmptyResponse {}
 
 impl<'de> Deserialize<'de> for EmptyResponse {

@@ -1,6 +1,6 @@
 use crate::{
     error::{Error, ErrorVec},
-    models::client::ErrorResponse,
+    models::client::{ErrorResponse, Status},
 };
 use reqwest::{header, Method, RequestBuilder, StatusCode, Url};
 use serde::de::DeserializeOwned;
@@ -142,6 +142,7 @@ impl Client {
         // For other errors, display in a different way.
         if status == StatusCode::OK
             || status == StatusCode::CREATED
+            || status == StatusCode::ACCEPTED
             || status == StatusCode::NO_CONTENT
         {
             Ok(response.json().await?)
