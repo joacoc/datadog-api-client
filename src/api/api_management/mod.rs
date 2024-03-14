@@ -7,6 +7,7 @@ use crate::models::api_management::{
     OpenApiUpdateRequest, OpenApiUpdateResponse,
 };
 
+/// Base route path for the API management endpoint.
 pub(crate) static BASE_PATH: &str = "api/v2/apicatalog";
 
 impl Client {
@@ -21,6 +22,7 @@ impl Client {
     ) -> Result<OpenApiCreateResponse, Error> {
         let req = self.build_request(Method::POST, &format!("{}/openapi", BASE_PATH))?;
         let req = req.json(&request);
+        let req = req.header("Content-Type", "multipart/form-data");
 
         self.send_request::<OpenApiCreateResponse>(req).await
     }

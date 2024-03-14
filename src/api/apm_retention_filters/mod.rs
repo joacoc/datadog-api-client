@@ -10,6 +10,7 @@ use crate::models::apm_retention_filters::{
 };
 use crate::models::client::EmptyResponse;
 
+/// Base route path for APM retention filters.
 static BASE_PATH: &str = "api/v2/apm/config/retention-filters";
 
 impl Client {

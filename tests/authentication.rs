@@ -10,7 +10,7 @@ use wiremock::{
 #[tokio::test]
 async fn authenticate_api_key() {
     let mock_server = MockServer::start().await;
-    let client_builder = ClientBuilder::new(Config {
+    let client_builder = ClientBuilder::new().set_config(Config {
         api_key: None,
         application_key: None,
         site: Some(datadog_api_client::client::Site::Custom(mock_server.uri())),
@@ -37,7 +37,7 @@ async fn authenticate_api_key() {
 #[tokio::test]
 async fn authenticate_invalid_api_key() {
     let mock_server = MockServer::start().await;
-    let client_builder = ClientBuilder::new(Config {
+    let client_builder = ClientBuilder::new().set_config(Config {
         api_key: None,
         application_key: None,
         site: Some(datadog_api_client::client::Site::Custom(mock_server.uri())),

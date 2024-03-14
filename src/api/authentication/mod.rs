@@ -10,7 +10,7 @@ impl Client {
     /// [Datadog documentation](https://docs.datadoghq.com/api/latest/authentication/#validate-api-key)
     pub async fn validate_api_key(&self) -> Result<ValidateApiKeyResponse, Error> {
         let req: reqwest::RequestBuilder =
-            self.build_request(Method::GET, &format!("{}", BASE_PATH))?;
+            self.build_request(Method::GET, &format!("{}", BASE_PATH).to_string())?;
 
         self.send_request::<ValidateApiKeyResponse>(req).await
     }

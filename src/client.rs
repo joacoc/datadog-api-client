@@ -7,7 +7,9 @@ use serde::de::DeserializeOwned;
 
 /// Datadog's API client, designed to perform asynchronous calls.
 pub struct Client {
+    /// Base inner [reqwest::Client] to do the requests.
     inner: reqwest::Client,
+    /// Base API url to use in requests.
     api_url: Url,
 }
 
@@ -66,13 +68,26 @@ impl Site {
 
 /// Client builder for the [Client].
 pub struct ClientBuilder {
+    /// Configuration for the client.
     config: Config,
 }
 
 impl ClientBuilder {
     /// Constructs a new [ClientBuilder].
-    pub fn new(config: Config) -> Self {
-        ClientBuilder { config }
+    pub fn new() -> Self {
+        ClientBuilder {
+            config: Config {
+                api_key: None,
+                site: None,
+                application_key: None,
+            },
+        }
+    }
+
+    /// Set client's config.
+    pub fn set_config(mut self, config: Config) -> Self {
+        self.config = config;
+        self
     }
 
     /// Set's Datadog's site.
@@ -82,14 +97,14 @@ impl ClientBuilder {
     }
 
     /// Set [Datadog application key](https://docs.datadoghq.com/account_management/api-app-keys/#application-keys)
-    pub fn set_application_key(mut self, application_key: Option<String>) -> ClientBuilder {
-        self.config.application_key = application_key;
+    pub fn set_application_key(mut self, application_key: &str) -> ClientBuilder {
+        self.config.application_key = Some(application_key.to_string());
         self
     }
 
     /// Set [Datadog api key](https://docs.datadoghq.com/account_management/api-app-keys/#api-keys)
-    pub fn set_api_key(mut self, api_key: Option<String>) -> ClientBuilder {
-        self.config.api_key = api_key;
+    pub fn set_api_key(mut self, api_key: &str) -> ClientBuilder {
+        self.config.api_key = Some(api_key.to_string());
         self
     }
 
@@ -140,7 +155,10 @@ impl Client {
     /// Use `Client::builder()` if you wish to handle the failure as an `Error`
     /// instead of panicking.
     pub fn new(config: Config) -> Self {
-        ClientBuilder::new(config).build().expect("Client::new()")
+        ClientBuilder::new()
+            .set_config(config)
+            .build()
+            .expect("Client::new()")
     }
 
     /// Builds a new request

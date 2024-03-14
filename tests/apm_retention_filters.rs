@@ -16,7 +16,7 @@ use wiremock::{
 #[tokio::test]
 async fn list_retention_filters() {
     let mock_server = MockServer::start().await;
-    let client_builder = ClientBuilder::new(Config {
+    let client_builder = ClientBuilder::new().set_config(Config {
         api_key: None,
         application_key: None,
         site: Some(datadog_api_client::client::Site::Custom(mock_server.uri())),
@@ -60,7 +60,7 @@ async fn list_retention_filters() {
 #[tokio::test]
 async fn create_retention_filter() {
     let mock_server = MockServer::start().await;
-    let client_builder = ClientBuilder::new(Config {
+    let client_builder = ClientBuilder::new().set_config(Config {
         api_key: None,
         application_key: None,
         site: Some(datadog_api_client::client::Site::Custom(mock_server.uri())),
@@ -117,7 +117,7 @@ async fn create_retention_filter() {
 #[tokio::test]
 async fn get_retention_filter() {
     let mock_server = MockServer::start().await;
-    let client_builder = ClientBuilder::new(Config {
+    let client_builder = ClientBuilder::new().set_config(Config {
         api_key: None,
         application_key: None,
         site: Some(datadog_api_client::client::Site::Custom(mock_server.uri())),
@@ -159,7 +159,7 @@ async fn get_retention_filter() {
 #[tokio::test]
 async fn update_retention_filter() {
     let mock_server = MockServer::start().await;
-    let client_builder = ClientBuilder::new(Config {
+    let client_builder = ClientBuilder::new().set_config(Config {
         api_key: None,
         application_key: None,
         site: Some(datadog_api_client::client::Site::Custom(mock_server.uri())),
@@ -218,7 +218,7 @@ async fn update_retention_filter() {
 #[tokio::test]
 async fn delete_retention_filters() {
     let mock_server = MockServer::start().await;
-    let client_builder = ClientBuilder::new(Config {
+    let client_builder = ClientBuilder::new().set_config(Config {
         api_key: None,
         application_key: None,
         site: Some(datadog_api_client::client::Site::Custom(mock_server.uri())),

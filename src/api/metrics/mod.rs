@@ -23,7 +23,7 @@ impl Client {
     ) -> Result<EmptyResponse, Error> {
         // TODO: Support compression.
         let req: reqwest::RequestBuilder =
-            self.build_request(Method::POST, &format!("{}", BASE_PATH))?;
+            self.build_request(Method::POST, &format!("{}", BASE_PATH).to_string())?;
         let req = req.json(&series);
 
         self.send_request::<EmptyErrorsResponse>(req).await?;

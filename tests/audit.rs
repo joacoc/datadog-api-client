@@ -1,5 +1,5 @@
 use datadog_api_client::{
-    client::{ClientBuilder, Config},
+    client::{Client, ClientBuilder, Config},
     models::audit::{
         AuditLogsListRequest, AuditLogsSearchFilter, AuditLogsSearchOptions, AuditLogsSearchPage,
         AuditLogsSearchRequest, AuditLogsSearchSort,
@@ -11,9 +11,40 @@ use wiremock::{
 };
 
 #[tokio::test]
+async fn apm_retention_filters() {
+    let client = Client::new(Config {
+        api_key: Some("94f8ef1bab69a9cf1a1847e685aa7e46".to_string()),
+        site: None,
+        application_key: None,
+    });
+    client.validate_api_key().await.unwrap();
+    client
+        .search_audit_logs(AuditLogsSearchRequest {
+            filter: Some(AuditLogsSearchFilter {
+                from: "now-15m".to_string(),
+                query: "*".to_string(),
+                to: "now".to_string(),
+            }),
+            options: Some(AuditLogsSearchOptions {
+                time_offset: None,
+                timezone: Some("GMT".to_string()),
+            }),
+            page: Some(AuditLogsSearchPage {
+                cursor: None,
+                limit: 10,
+            }),
+            sort: Some(AuditLogsSearchSort::Timestamp),
+        })
+        .await
+        .unwrap();
+    let list = client.list_apm_retention_filters().await.unwrap();
+    assert!(list.data.len() == 0)
+}
+
+#[tokio::test]
 async fn search_audit_logs() {
     let mock_server = MockServer::start().await;
-    let client_builder = ClientBuilder::new(Config {
+    let client_builder = ClientBuilder::new().set_config(Config {
         api_key: None,
         application_key: None,
         site: Some(datadog_api_client::client::Site::Custom(mock_server.uri())),
@@ -69,20 +100,20 @@ async fn search_audit_logs() {
 
     let audit_logs = client
         .search_audit_logs(AuditLogsSearchRequest {
-            filter: AuditLogsSearchFilter {
+            filter: Some(AuditLogsSearchFilter {
                 from: "now-15m".to_string(),
                 query: "*".to_string(),
                 to: "now".to_string(),
-            },
-            options: AuditLogsSearchOptions {
+            }),
+            options: Some(AuditLogsSearchOptions {
                 time_offset: None,
                 timezone: Some("GMT".to_string()),
-            },
-            page: AuditLogsSearchPage {
+            }),
+            page: Some(AuditLogsSearchPage {
                 cursor: None,
                 limit: 25,
-            },
-            sort: AuditLogsSearchSort::Timestamp,
+            }),
+            sort: Some(AuditLogsSearchSort::Timestamp),
         })
         .await
         .unwrap();
@@ -94,7 +125,7 @@ async fn search_audit_logs() {
 #[tokio::test]
 async fn list_audit_logs() {
     let mock_server = MockServer::start().await;
-    let client_builder = ClientBuilder::new(Config {
+    let client_builder = ClientBuilder::new().set_config(Config {
         api_key: None,
         application_key: None,
         site: Some(datadog_api_client::client::Site::Custom(mock_server.uri())),

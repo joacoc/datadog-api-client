@@ -103,15 +103,15 @@ pub struct AuditLogsResponse {
 /// Request query object to search audit logs.
 pub struct AuditLogsSearchRequest {
     /// Search and filter query settings.
-    pub filter: AuditLogsSearchFilter,
+    pub filter: Option<AuditLogsSearchFilter>,
     /// Global query options that are used during the query.
     ///
     /// Note: Specify either timezone or time offset, not both. Otherwise, the query fails.
-    pub options: AuditLogsSearchOptions,
+    pub options: Option<AuditLogsSearchOptions>,
     /// Paging attributes for listing events.
-    pub page: AuditLogsSearchPage,
+    pub page: Option<AuditLogsSearchPage>,
     /// Sort parameters when querying events.
-    pub sort: AuditLogsSearchSort,
+    pub sort: Option<AuditLogsSearchSort>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
